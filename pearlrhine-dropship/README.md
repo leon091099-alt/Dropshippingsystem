@@ -10,7 +10,7 @@ Eine Anwendung, die zwischen unserem Shopify-Shop und den Händlern sitzt:
 
 Shopify bleibt die einzige Wahrheit. Die App hält nur eine SQLite-Datei (Händler-Zugänge, Bestell-Log, Bestands-Snapshot).
 
-Die genaue Funktionsweise für Rückfragen steht in [FUNKTIONSWEISE.md](FUNKTIONSWEISE.md).
+Die genaue Funktionsweise für Rückfragen steht in [FUNKTIONSWEISE.md](FUNKTIONSWEISE.md). Die Installation steht in [INSTALLATION.md](INSTALLATION.md).
 
 ## Aufbau
 
@@ -69,42 +69,13 @@ Produkte kommen in die Feeds, wenn sie `PRODUCT_QUERY` erfüllen (Standard: Tag 
 
 ## Einrichtung
 
-### 1. Shopify-App
-Seit 01.01.2026 lassen sich keine neuen „Legacy Custom Apps“ im Shop-Admin anlegen. Die App-Konfiguration
-liegt in `shopify.app.toml` (Scopes, Webhooks, `embedded = false`). `client_id` und `application_url`
-nach dem Anlegen im Dev Dashboard eintragen (`shopify app config link`).
+Der vollständige Ablauf steht in [INSTALLATION.md](INSTALLATION.md). Kurz:
 
-Token, in dieser Reihenfolge:
-- **Vorhandenes Admin-API-Token** → `SHOPIFY_ADMIN_TOKEN`
-- **OAuth-Installation** → einmalig `/auth?shop=dein-shop.myshopify.com` öffnen. Das Token liegt in der SQLite-Datei und wird bei Ablauf erneuert.
-- **Client-Credentials** der Dev-Dashboard-App → `SHOPIFY_CLIENT_ID` + `SHOPIFY_CLIENT_SECRET` (24 h, automatische Erneuerung).
+1. App im Dev Dashboard anlegen, `shopify.app.toml` auf die echte Domain bringen und deployen. `REGISTER_WEBHOOKS` bleibt `false`, sonst kommen Webhooks doppelt.
+2. DNS auf den Server, `.env` aus `.env.example`, Domain in `Caddyfile`, dann `docker compose up -d --build`.
+3. Lieferschein aus `shopify/packing-slip.liquid` in Shopify einsetzen. Händler unter `/admin/retailers/new` anlegen, zuerst ohne automatische Annahme.
 
-Scopes stehen in `shopify.app.toml` und `src/shopify/scopes.ts` und müssen gleich bleiben.
-Webhooks kommen aus der toml-Datei. `REGISTER_WEBHOOKS=true` oder `npm run register-webhooks` nur nutzen,
-wenn die App keine toml-Subscriptions hat — sonst liefert Shopify jedes Event doppelt.
-Pflicht-Webhooks (`customers/data_request`, `customers/redact`, `shop/redact`) antwortet die App mit 200;
-`customers/redact` schwärzt Lieferadressen der genannten Orders.
-
-### 2. Server (ein VPS, z. B. Hetzner CX22)
-```bash
-cp .env.example .env        # ausfüllen
-# Domain in Caddyfile eintragen, DNS auf den Server zeigen lassen
-docker compose up -d --build
-```
-Webhooks einmalig registrieren (lokal mit gleicher .env):
-```bash
-npm ci && npm run register-webhooks
-```
-Backup: Ordner `./data` (eine SQLite-Datei) oder Server-Snapshot.
-
-### 3. Shopify-Einstellungen
-- Lieferschein-Vorlage: Inhalt von `shopify/packing-slip.liquid` einsetzen, mit Testbestellung prüfen.
-- B2B-Firmen der Händler: „Allow customers to ship to any one-time address“ aktivieren, Zahlungsziel setzen.
-- Externe Fulfiller: deren Neutralversand-Option prüfen (eigene Lieferscheine).
-
-### 4. Händler anlegen
-`/admin/retailers/new` → Zugangsdaten werden einmal angezeigt (API-Key) → Link zur Händlerseite schicken.
-Neue Händler zuerst ohne „automatisch annehmen“ laufen lassen (jede Bestellung in der Prüfliste).
+`npm run register-webhooks` nur verwenden, wenn die App keine toml-Subscriptions hat.
 
 ## API für Händler
 
@@ -140,7 +111,7 @@ Kopfzeile: `bestellnummer;sku;menge;name;firma;strasse;adresszusatz;plz;ort;land
 ## Entwicklung
 ```bash
 npm install
-npm test                    # 22 Tests gegen Mock-Shopify
+npm test                    # Tests gegen Mock-Shopify
 MOCK_SHOPIFY=true SHOPIFY_STORE=x.myshopify.com ADMIN_PASSWORD=geheim123 npm run dev
 ```
 

@@ -1,6 +1,6 @@
 # PearlRhine Dropship – Funktionsweise
 
-Stand: Code im Ordner `pearlrhine-dropship/`, Version 0.2.0. Diese Datei beschreibt, was die App tut, in welcher Reihenfolge, mit welchen Daten und wo die Grenzen liegen. Sie ist als Kontext für spätere Rückfragen an eine KI gedacht. Wenn diese Datei und der Code widersprechen, gilt der Code.
+Stand: Code im Ordner `pearlrhine-dropship/`, Version 0.2.0. Diese Datei beschreibt, was die App tut, in welcher Reihenfolge, mit welchen Daten und wo die Grenzen liegen. Sie ist als Kontext für spätere Rückfragen an eine KI gedacht. Wenn diese Datei und der Code widersprechen, gilt der Code. Die Installation steht in [INSTALLATION.md](INSTALLATION.md).
 
 Kurzfassung für die KI: Das ist eine Ein-Shop-Anwendung für die Agentur PearlRhine. Der eigene Shopify-B2B-Shop ist die einzige Waren- und Auftragswahrheit. Die App kopiert Bestand und Produktdaten in einen lokalen Snapshot, gibt sie Händlern als Feed und nimmt deren Endkunden-Bestellungen an. Angenommene Bestellungen werden als Shopify-Draft-Order angelegt und sofort abgeschlossen. Die App versendet nicht selbst und schickt keine eigenen Mails.
 
