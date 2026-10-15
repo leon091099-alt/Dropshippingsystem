@@ -1,0 +1,89 @@
+{%- comment -%}
+  PearlRhine Lieferschein mit Neutralversand.
+  Einsetzen: Shopify-Admin > Einstellungen > Versand und Zustellung > Lieferschein-Vorlage.
+  Dropship-Modus = Rechnungsadresse (Händler) weicht von der Lieferadresse (Endkunde) ab.
+  Dann: Händler als Absender, kein Shop-Name, Rücksendeadresse aus order.note.
+  Vor dem Livegang mit einer Testbestellung prüfen (Vorschau im Vorlagen-Editor).
+{%- endcomment -%}
+{%- assign dropship = false -%}
+{%- if billing_address and shipping_address -%}
+  {%- if billing_address.address1 != shipping_address.address1 or billing_address.zip != shipping_address.zip -%}
+    {%- assign dropship = true -%}
+  {%- endif -%}
+{%- endif -%}
+
+<div class="wrapper">
+  <div class="header">
+    <div class="sender">
+      {%- if dropship -%}
+        <strong>{{ billing_address.company | default: billing_address.name }}</strong><br>
+        {{ billing_address.address1 }}{% if billing_address.address2 != blank %}, {{ billing_address.address2 }}{% endif %}<br>
+        {{ billing_address.zip }} {{ billing_address.city }}
+      {%- else -%}
+        <strong>{{ shop.name }}</strong><br>
+        {{ shop_address.address1 }}<br>
+        {{ shop_address.zip }} {{ shop_address.city }}
+      {%- endif -%}
+    </div>
+    <div class="meta">
+      <strong>Lieferschein</strong><br>
+      {%- if dropship -%}
+        {%- assign meta_lines = order.note | newline_to_br | split: '<br />' -%}
+        {%- for l in meta_lines -%}{%- assign l2 = l | strip -%}{%- if l2 contains 'Bestellnummer:' -%}{{ l2 }}<br>{%- endif -%}{%- endfor -%}
+        Datum: {{ order.created_at | date: "%d.%m.%Y" }}
+      {%- else -%}
+        Bestellung {{ order.name }}<br>Datum: {{ order.created_at | date: "%d.%m.%Y" }}
+      {%- endif -%}
+    </div>
+  </div>
+
+  <div class="address">
+    <span class="label">Lieferadresse</span><br>
+    {%- if shipping_address.company != blank -%}{{ shipping_address.company }}<br>{%- endif -%}
+    {{ shipping_address.name }}<br>
+    {{ shipping_address.address1 }}<br>
+    {%- if shipping_address.address2 != blank -%}{{ shipping_address.address2 }}<br>{%- endif -%}
+    {{ shipping_address.zip }} {{ shipping_address.city }}<br>
+    {{ shipping_address.country }}
+  </div>
+
+  <table class="items">
+    <thead><tr><th>Artikel</th><th>Art.-Nr.</th><th class="qty">Menge</th></tr></thead>
+    <tbody>
+      {%- for line_item in line_items_in_shipment -%}
+        {%- if line_item.requires_shipping -%}
+        <tr>
+          <td>{{ line_item.title }}{% if line_item.variant_title != blank %} – {{ line_item.variant_title }}{% endif %}</td>
+          <td>{{ line_item.sku }}</td>
+          <td class="qty">{{ line_item.shipping_quantity }}</td>
+        </tr>
+        {%- endif -%}
+      {%- endfor -%}
+    </tbody>
+  </table>
+
+  {%- if dropship and order.note != blank -%}
+    {%- assign note_lines = order.note | newline_to_br | split: '<br />' -%}
+    {%- for l in note_lines -%}
+      {%- assign l2 = l | strip -%}
+      {%- if l2 contains 'Rücksendungen an:' -%}<p class="returns">{{ l2 }}</p>{%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+
+  {%- unless dropship -%}
+    <p class="footer">Vielen Dank für Ihre Bestellung bei {{ shop.name }}.</p>
+  {%- endunless -%}
+</div>
+
+<style>
+  .wrapper { font-family: Arial, sans-serif; font-size: 13px; color: #111; margin: 24px; }
+  .header { display: flex; justify-content: space-between; margin-bottom: 32px; }
+  .meta { text-align: right; }
+  .address { margin-bottom: 28px; line-height: 1.5; }
+  .label { font-size: 11px; color: #666; text-transform: uppercase; }
+  .items { width: 100%; border-collapse: collapse; }
+  .items th, .items td { text-align: left; padding: 6px 4px; border-bottom: 1px solid #ddd; }
+  .items .qty { text-align: right; width: 70px; }
+  .returns { margin-top: 28px; font-size: 12px; }
+  .footer { margin-top: 28px; font-size: 12px; color: #666; }
+</style>
