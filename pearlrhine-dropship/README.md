@@ -10,6 +10,8 @@ Eine Anwendung, die zwischen unserem Shopify-Shop und den Händlern sitzt:
 
 Shopify bleibt die einzige Wahrheit. Die App hält nur eine SQLite-Datei (Händler-Zugänge, Bestell-Log, Bestands-Snapshot).
 
+Die genaue Funktionsweise für Rückfragen steht in [FUNKTIONSWEISE.md](FUNKTIONSWEISE.md).
+
 ## Aufbau
 
 ```
