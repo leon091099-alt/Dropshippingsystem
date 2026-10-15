@@ -611,6 +611,8 @@ Die Notiz muss exakt diese Präfixe enthalten. `pushToShopify` schreibt sie so.
 
 ## 23. Deployment
 
+Der schrittweise Ablauf steht in [INSTALLATION.md](INSTALLATION.md). Hier nur die technischen Eckpunkte.
+
 `docker-compose.yml`: Dienst `app` baut das Dockerfile, mountet `./data` nach `/data`, Healthcheck auf `GET /health`. Davor Caddy mit dem `Caddyfile`. Die Beispiel-Domain ist `dropship.example.com` und muss in Caddyfile, `BASE_URL`, `application_url` und `redirect_urls` dieselbe HTTPS-Adresse sein.
 
 Ablauf für den echten Shop:
