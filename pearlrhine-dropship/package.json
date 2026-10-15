@@ -1,0 +1,31 @@
+{
+  "name": "pearlrhine-dropship",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Dropshipping-Gateway: Bestandsfeeds und Order-Intake für Händler auf Basis von Shopify",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "test": "NODE_ENV=test vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "register-webhooks": "tsx scripts/register-webhooks.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.1.3",
+    "better-sqlite3": "^13.0.3",
+    "hono": "^4.13.13",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^26.6.4",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
+  }
+}

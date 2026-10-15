@@ -1,0 +1,35 @@
+# PearlRhine Dropship – Dev-Dashboard-App (nicht eingebettet).
+# client_id nach `shopify app config link` eintragen. application_url = BASE_URL.
+# Webhook-Topics müssen mit WEBHOOK_TOPICS in src/webhooks.ts übereinstimmen.
+# Compliance-Topics lassen sich nur hier abonnieren, nicht über die Admin-API.
+
+name = "PearlRhine Dropship"
+handle = "pearlrhine-dropship"
+client_id = "replace-me"
+application_url = "https://dropship.example.com"
+embedded = false
+
+[access_scopes]
+scopes = "read_products,read_inventory,read_locations,read_orders,write_orders,write_draft_orders,read_draft_orders,read_companies,read_fulfillments,read_payment_terms,write_payment_terms"
+
+[auth]
+redirect_urls = [ "https://dropship.example.com/auth/callback" ]
+
+[webhooks]
+api_version = "2026-07"
+
+  [[webhooks.subscriptions]]
+  topics = ["inventory_levels/update", "inventory_levels/connect", "inventory_levels/disconnect"]
+  uri = "/webhooks/shopify"
+
+  [[webhooks.subscriptions]]
+  topics = ["orders/create", "fulfillments/create", "fulfillments/update"]
+  uri = "/webhooks/shopify"
+
+  [[webhooks.subscriptions]]
+  topics = ["products/update", "app/uninstalled"]
+  uri = "/webhooks/shopify"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+  uri = "/webhooks/shopify"

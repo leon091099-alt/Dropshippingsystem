@@ -1,20 +1,23 @@
-# Dropship-Gateway – Build-Status (6.10.2026)
+# Dropship-Gateway – Build-Status
 
-Konzept: Claude-Doc „Dropshipping-System – Konzept“ (https://claude.ai/code/artifact/eb399458-a348-49cd-9159-cecd35799611)
-Code: pearlrhine-dropship.zip (im Chat vom 6.10.2026 übergeben), Node/TypeScript, Hono, SQLite, Docker + Caddy.
+Konzept: Dropshipping für die China-Agentur. Der eigene Shopify-B2B-Shop bleibt die Waren- und Auftragswahrheit. Die App dazwischen liefert Händlern Produkt- und Bestandsfeeds und nimmt deren Bestellungen an.
 
-## Gebaut
-- Bestands-Snapshot (Webhook-Patch + 5-Min-Abgleich), Regel min(verfügbar − 2, 20), lokale Reservierung nach Order
-- Feeds stock/products als CSV/XML/JSON pro Händler-Token
-- REST-API (Bestellung anlegen idempotent, Status/Tracking, Storno-Anfrage), CSV-Upload auf Händlerseite
-- Anlage als Draft Order → Order (paymentPending), EK als Zeilenrabatt oder B2B-Katalog
-- orders/create-Webhook markiert B2B-Shop-Bestellungen mit abweichender Lieferadresse als dropship
-- Admin /admin: Händler, Prüfliste, Freigabe/Ablehnung, Storno-Aufgaben
-- Lieferschein-Vorlage (Liquid) mit Neutralversand: Händler = Rechnungsadresse, Rücksendeadresse + Händler-Bestellnr über order.note
-- 22 Tests gegen Mock-Shopify grün
+Code: `pearlrhine-dropship/` (Node, TypeScript, Hono, SQLite, Docker + Caddy). Shopify-App-Konfiguration: `shopify.app.toml`.
 
-## Offen
-- Live-Test gegen Dev-Store (GraphQL-Schema, paymentPending deprecated, Katalogpreis vs. Rabatt, Lieferschein, Versandmail)
-- Dropship-Pauschale (DROPSHIP_FEE_NET) und Preisstufen von Leon
-- Deployment auf VPS, Webhook-Registrierung
-- Shopify Collective im Pilot testen
+## Fertig
+- Bestands-Snapshot (Webhook sofort, Vollabgleich alle 5 Min., Puffer/Deckel, lokale Reservierung)
+- Unbekannter Bestands-Webhook und Connect/Disconnect stoßen einen Abgleich an
+- Feeds stock/products als CSV, XML, JSON pro Händler, EK je Preisstufe (`ek_quelle`)
+- REST-API und CSV-Upload, idempotent auch bei paralleler gleicher Bestellnummer
+- Draft Order mit EK-Rabatt oder B2B-Katalog; Zahlungsziel über Payment-Terms-Template, `paymentPending` nur noch als Fallback
+- Fulfillment-Webhook schreibt Tracking; Polling bleibt für die Händlerseite
+- Admin, Händlerseite, Lieferschein-Vorlage, Compliance-Webhooks (`customers/redact` schwärzt Adressen)
+- OAuth-Callback, Client-Credentials und statisches Admin-Token
+- Tests gegen Mock-Shopify
+
+## Braucht den Dev-Store
+- Einmal installieren (Dev Dashboard, `client_id` in `shopify.app.toml`, Domain in Caddyfile und `BASE_URL`)
+- GraphQL, Zahlungsziel, Katalogpreis und Lieferschein mit einer echten Testbestellung prüfen
+- Dropship-Pauschale und die konkreten Rabattstufen eintragen
+- Deployment auf den VPS (`docker compose up -d --build`)
+- Shopify Collective nur als separater Pilot, nicht Teil dieser App
